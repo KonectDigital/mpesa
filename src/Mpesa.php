@@ -153,9 +153,9 @@ class Mpesa
     {
         // Set public key certificate based on environment
         if (config('mpesa.mpesa_env') == 'sandbox') {
-            $pubkey = File::get(__DIR__ . '/cert/sandbox.cer');
+            $pubkey = File::get(__DIR__.'/cert/sandbox.cer');
         } else {
-            $pubkey = File::get(__DIR__ . '/cert/production.cer');
+            $pubkey = File::get(__DIR__.'/cert/production.cer');
         }
 
         openssl_public_encrypt($this->initiator_password, $output, $pubkey, OPENSSL_PKCS1_PADDING);
@@ -166,7 +166,7 @@ class Mpesa
 
     public function getAccessToken()
     {
-        $credentials = base64_encode($this->consumer_key . ':' . $this->consumer_secret);
+        $credentials = base64_encode($this->consumer_key.':'.$this->consumer_secret);
         $ch = curl_init();
         $url = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
         if (config('mpesa.mpesa_env') == 'sandbox') {
@@ -175,14 +175,14 @@ class Mpesa
         curl_setopt($ch, CURLOPT_URL, $url);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . $credentials, 'Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Basic '.$credentials, 'Content-Type: application/json']);
         $response = curl_exec($ch);
         curl_close($ch);
         $response = json_decode($response);
         $access_token = $response->access_token;
         // The above $access_token expires after an hour, find a way to cache it to minimize requests to the server
 
-        if (!$access_token) {
+        if (! $access_token) {
             // Invalid token
             return false;
         }
@@ -203,7 +203,7 @@ class Mpesa
         if ($access_token != '' || $access_token !== false) {
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Authorization: Bearer ' . $access_token]);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Authorization: Bearer '.$access_token]);
 
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_POST, true);
@@ -243,7 +243,7 @@ class Mpesa
             'Occasion' => '', //Optional
         ];
         $data = json_encode($request_data);
-        $url = $this->base_url . 'b2c/v1/paymentrequest';
+        $url = $this->base_url.'b2c/v1/paymentrequest';
         $response = $this->submit_request($url, $data);
 
         return $response;
@@ -275,7 +275,7 @@ class Mpesa
             'ResultURL' => $this->bbresult,
         ];
         $data = json_encode($request_data);
-        $url = $this->base_url . 'b2b/v1/paymentrequest';
+        $url = $this->base_url.'b2b/v1/paymentrequest';
         $response = $this->submit_request($url, $data);
 
         return $response;
@@ -301,7 +301,7 @@ class Mpesa
         $data = json_encode($request_data);
         //header('Content-Type: application/json');
 
-        $url = $this->base_url . 'c2b/v1/registerurl';
+        $url = $this->base_url.'c2b/v1/registerurl';
         $response = $this->submit_request($url, $data);
 
         return $response;
@@ -327,7 +327,7 @@ class Mpesa
             'BillRefNumber' => $ref,
         ];
         $data = json_encode($data);
-        $url = $this->base_url . 'c2b/v1/simulate';
+        $url = $this->base_url.'c2b/v1/simulate';
         $response = $this->submit_request($url, $data);
 
         return $response;
@@ -353,7 +353,7 @@ class Mpesa
             'ResultURL' => $this->balresult,
         ];
         $data = json_encode($data);
-        $url = $this->base_url . 'accountbalance/v1/query';
+        $url = $this->base_url.'accountbalance/v1/query';
         $response = $this->submit_request($url, $data);
 
         return $response;
@@ -382,7 +382,7 @@ class Mpesa
             'Occassion' => 'Test',
         ];
         $data = json_encode($data);
-        $url = $this->base_url . 'transactionstatus/v1/query';
+        $url = $this->base_url.'transactionstatus/v1/query';
         $response = $this->submit_request($url, $data);
 
         return $response;
@@ -413,7 +413,7 @@ class Mpesa
             'TransactionID' => $trx_id,
         ];
         $data = json_encode($data);
-        $url = $this->base_url . 'reversal/v1/request';
+        $url = $this->base_url.'reversal/v1/request';
         $response = $this->submit_request($url, $data);
 
         return $response;
@@ -427,15 +427,14 @@ class Mpesa
 
     public function express($amount, $phone, $ref = 'Payment', $desc = 'Payment')
     {
-        if (!is_numeric($amount) || $amount < 1 || !is_numeric($phone)) {
-
+        if (! is_numeric($amount) || $amount < 1 || ! is_numeric($phone)) {
             throw new Exception('Invalid amount and/or phone number. Amount should be 10 or more, phone number should be in the format 254xxxxxxxx');
 
             return false;
         }
 
         $timestamp = date('YmdHis');
-        $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);
+        $passwd = base64_encode($this->lipa_na_mpesa.$this->lipa_na_mpesa_key.$timestamp);
         $data = [
             'BusinessShortCode' => $this->lipa_na_mpesa,
             'Password' => $passwd,
@@ -451,7 +450,7 @@ class Mpesa
         ];
 
         $data = json_encode($data);
-        $url = $this->base_url . 'stkpush/v1/processrequest';
+        $url = $this->base_url.'stkpush/v1/processrequest';
         $response = $this->submit_request($url, $data);
         $result = json_decode($response);
 
@@ -461,7 +460,7 @@ class Mpesa
     private function lnmo_query($checkoutRequestID = null)
     {
         $timestamp = date('YmdHis');
-        $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);
+        $passwd = base64_encode($this->lipa_na_mpesa.$this->lipa_na_mpesa_key.$timestamp);
 
         if ($checkoutRequestID == null || $checkoutRequestID == '') {
             return false;
@@ -474,7 +473,7 @@ class Mpesa
             'CheckoutRequestID' => $checkoutRequestID,
         ];
         $data = json_encode($data);
-        $url = $this->base_url . 'stkpushquery/v1/query';
+        $url = $this->base_url.'stkpushquery/v1/query';
         $response = $this->submit_request($url, $data);
 
         return $response;
