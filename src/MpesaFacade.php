@@ -4,9 +4,7 @@ namespace konectdigital\Mpesa;
 
 use Illuminate\Support\Facades\Facade;
 
-/**
- * @see \Konectdigital\Mpesa\Skeleton\SkeletonClass
- */
+
 class MpesaFacade extends Facade
 {
     /**
