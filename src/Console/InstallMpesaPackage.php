@@ -4,7 +4,7 @@ namespace konectdigital\Mpesa\Console;
 
 use Illuminate\Console\Command;
 
-class InstallBlogPackage extends Command
+class InstallMpesaPackage extends Command
 {
     protected $signature = 'mpesa:install';
 
@@ -18,7 +18,7 @@ class InstallBlogPackage extends Command
 
         $this->call('vendor:publish', [
             '--provider' => "Konectdigital\Mpesa\MpesaServiceProvider",
-            '--tag' => "config"
+            '--tag' => 'config',
         ]);
 
         $this->info('Installed Mpesa');

@@ -4,7 +4,6 @@ namespace konectdigital\Mpesa;
 
 use Illuminate\Support\Facades\Facade;
 
-
 class MpesaFacade extends Facade
 {
     /**
