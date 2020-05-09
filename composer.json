@@ -1,0 +1,54 @@
+{
+    "name": "konectdigital/mpesa",
+    "description": "MPesa Laravel Package for Safaricom's Daraja API",
+    "keywords": [
+        "konectdigital",
+        "mpesa"
+    ],
+    "homepage": "https://github.com/konectdigital/mpesa",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Shadrack Nicholas",
+            "email": "shadrac@konect.co.ke",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "illuminate/support": "^6.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^4.0",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Konectdigital\\Mpesa\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Konectdigital\\Mpesa\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Konectdigital\\Mpesa\\MpesaServiceProvider"
+            ],
+            "aliases": {
+                "Mpesa": "Konectdigital\\Mpesa\\MpesaFacade"
+            }
+        }
+    }
+}
