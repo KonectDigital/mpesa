@@ -6,71 +6,18 @@ use Illuminate\Support\Facades\File;
 
 class Mpesa
 {
-    /**
-     * Home MPesa API endpoints.
-     * @var string
-     */
+
     private $base_url;
-
-    /**
-     * The consumer key.
-     * @var string
-     */
-    public $consumer_key;
-
-    /**
-     * The consumer key secret.
-     * @var string
-     */
-    public $consumer_secret;
-
-    /**
-     * The MPesa Paybill number.
-     * @var int
-     */
-    public $paybill;
-
-    /**
-     * The Lipa Na MPesa paybill number.
-     * @var int
-     */
-    public $lipa_na_mpesa;
-
-    /**
-     * The Lipa Na MPesa Paybill No SAG Key.
-     * @var string
-     */
-    public $lipa_na_mpesa_key;
-
-    /**
-     * The Mpesa Daraja Username.
-     * @var string
-     */
-    public $initiator_username;
-
-    /**
-     * The Mpesa Daraja Password.
-     * @var string
-     */
-    public $initiator_password;
-
-    /**
-     * The Callback base URL.
-     * @var string
-     */
+    public  $consumer_key;
+    public  $consumer_secret;
+    public  $paybill;
+    public  $lipa_na_mpesa;
+    public  $lipa_na_mpesa_key;
+    public  $initiator_username;
+    public  $initiator_password;
     private $callback_baseurl;
-
-    /**
-     * The test phone number on DARAJA.
-     * @var string
-     */
     private $test_msisdn;
-
-    /**
-     * The signed API credentials.
-     * @var string
-     */
-    private $cred;
+    private $credentials;
     private $access_token;
 
     /*Callbacks*/
@@ -114,6 +61,9 @@ class Mpesa
         $this->initiator_username = config('mpesa.initiator_username');
         $this->initiator_password = config('mpesa.initiator_password');
 
+        // Set the access token
+        $this->access_token = $this->getAccessToken();
+
         // Mpesa express (STK) callbacks
         $this->callback_baseurl = 'https://91c77dd6.ngrok.io/api/callback';
         $this->lnmocallback = config('mpesa.lnmocallback');
@@ -134,9 +84,6 @@ class Mpesa
         // Reversal URLs
         $this->reverseresult = config('mpesa.reversal_result_callback');
         $this->reversetimeout = config('mpesa.reversal_timeout_callback');
-
-        // Set the access token
-        $this->access_token = $this->getAccessToken();
     }
 
     /**
@@ -149,7 +96,7 @@ class Mpesa
      * @return object|bool Curl response or FALSE on failure
      * @throws exception if the Access Token is not valid
      */
-    public function setCred()
+    public function setCredentials()
     {
         // Set public key certificate based on environment
         if (config('mpesa.mpesa_env') == 'sandbox') {
@@ -159,9 +106,9 @@ class Mpesa
         }
 
         openssl_public_encrypt($this->initiator_password, $output, $pubkey, OPENSSL_PKCS1_PADDING);
-        $this->cred = base64_encode($output);
+        $this->credentials = base64_encode($output);
 
-        return $this->cred;
+        return $this->credentials;
     }
 
     public function getAccessToken()
@@ -270,6 +217,66 @@ class Mpesa
         return $response;
     }
 
+    /*********************************************************************
+     *
+     * 	LNMO APIs
+     *
+     * *******************************************************************/
+
+    public function express($amount, $phone, $ref = 'Payment', $desc = 'Payment')
+    {
+        if (!is_numeric($amount) || $amount < 1 || !is_numeric($phone)) {
+            throw new Exception('Invalid amount and/or phone number. Amount should be 10 or more, phone number should be in the format 254xxxxxxxx');
+
+            return false;
+        }
+
+        $timestamp = date('YmdHis');
+        $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);
+        $data = [
+            'BusinessShortCode' => $this->lipa_na_mpesa,
+            'Password' => $passwd,
+            'Timestamp' => $timestamp,
+            'TransactionType' => 'CustomerPayBillOnline',
+            'Amount' => $amount,
+            'PartyA' => $phone,
+            'PartyB' => $this->lipa_na_mpesa,
+            'PhoneNumber' => $phone,
+            'CallBackURL' => $this->lnmocallback,
+            'AccountReference' => $ref,
+            'TransactionDesc' => $desc,
+        ];
+
+        $data = json_encode($data);
+        $url = $this->base_url . 'stkpush/v1/processrequest';
+        $response = $this->submit_request($url, $data);
+        $result = json_decode($response);
+
+        return $result;
+    }
+
+    private function lnmo_query($checkoutRequestID = null)
+    {
+        $timestamp = date('YmdHis');
+        $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);
+
+        if ($checkoutRequestID == null || $checkoutRequestID == '') {
+            return false;
+        }
+
+        $data = [
+            'BusinessShortCode' => $this->lipa_na_mpesa,
+            'Password' => $passwd,
+            'Timestamp' => $timestamp,
+            'CheckoutRequestID' => $checkoutRequestID,
+        ];
+        $data = json_encode($data);
+        $url = $this->base_url . 'stkpushquery/v1/query';
+        $response = $this->submit_request($url, $data);
+
+        return $response;
+    }
+
     /**
      * Business to Client.
      *
@@ -281,10 +288,10 @@ class Mpesa
      */
     public function b2c($amount, $phone, $command_id, $remarks)
     {
-        $this->setCred();
+        $this->setCredentials();
         $request_data = [
             'InitiatorName' => $this->initiator_username,
-            'SecurityCredential' => $this->cred,
+            'SecurityCredential' => $this->credentials,
             'CommandID' => $command_id,
             'Amount' => $amount,
             'PartyA' => $this->paybill,
@@ -348,7 +355,7 @@ class Mpesa
             'IdentifierType' => '4',
             'Remarks' => 'Remarks or short description',
             'Initiator' => $this->initiator_username,
-            'SecurityCredential' => $this->cred,
+            'SecurityCredential' => $this->credentials,
             'QueueTimeOutURL' => $this->baltimeout,
             'ResultURL' => $this->balresult,
         ];
@@ -375,7 +382,7 @@ class Mpesa
             'IdentifierType' => 4,
             'Remarks' => 'Testing API',
             'Initiator' => $this->initiator_username,
-            'SecurityCredential' => $this->cred,
+            'SecurityCredential' => $this->credentials,
             'QueueTimeOutURL' => $this->statustimeout,
             'ResultURL' => $this->statusresult,
             'TransactionID' => $transaction,
@@ -407,73 +414,13 @@ class Mpesa
             'Remarks' => 'Testing',
             'Amount' => $amount,
             'Initiator' => $this->initiator_username,
-            'SecurityCredential' => $this->cred,
+            'SecurityCredential' => $this->credentials,
             'QueueTimeOutURL' => $this->reversetimeout,
             'ResultURL' => $this->reverseresult,
             'TransactionID' => $trx_id,
         ];
         $data = json_encode($data);
         $url = $this->base_url . 'reversal/v1/request';
-        $response = $this->submit_request($url, $data);
-
-        return $response;
-    }
-
-    /*********************************************************************
-     *
-     * 	LNMO APIs
-     *
-     * *******************************************************************/
-
-    public function express($amount, $phone, $ref = 'Payment', $desc = 'Payment')
-    {
-        if (!is_numeric($amount) || $amount < 1 || !is_numeric($phone)) {
-            throw new Exception('Invalid amount and/or phone number. Amount should be 10 or more, phone number should be in the format 254xxxxxxxx');
-
-            return false;
-        }
-
-        $timestamp = date('YmdHis');
-        $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);
-        $data = [
-            'BusinessShortCode' => $this->lipa_na_mpesa,
-            'Password' => $passwd,
-            'Timestamp' => $timestamp,
-            'TransactionType' => 'CustomerPayBillOnline',
-            'Amount' => $amount,
-            'PartyA' => $phone,
-            'PartyB' => $this->lipa_na_mpesa,
-            'PhoneNumber' => $phone,
-            'CallBackURL' => $this->lnmocallback,
-            'AccountReference' => $ref,
-            'TransactionDesc' => $desc,
-        ];
-
-        $data = json_encode($data);
-        $url = $this->base_url . 'stkpush/v1/processrequest';
-        $response = $this->submit_request($url, $data);
-        $result = json_decode($response);
-
-        return $result;
-    }
-
-    private function lnmo_query($checkoutRequestID = null)
-    {
-        $timestamp = date('YmdHis');
-        $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);
-
-        if ($checkoutRequestID == null || $checkoutRequestID == '') {
-            return false;
-        }
-
-        $data = [
-            'BusinessShortCode' => $this->lipa_na_mpesa,
-            'Password' => $passwd,
-            'Timestamp' => $timestamp,
-            'CheckoutRequestID' => $checkoutRequestID,
-        ];
-        $data = json_encode($data);
-        $url = $this->base_url . 'stkpushquery/v1/query';
         $response = $this->submit_request($url, $data);
 
         return $response;
