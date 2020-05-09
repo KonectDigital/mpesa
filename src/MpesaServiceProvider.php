@@ -3,7 +3,7 @@
 namespace Konectdigital\Mpesa;
 
 use Illuminate\Support\ServiceProvider;
-use konectdigital\Mpesa\Console\InstallMpesaPackage;
+use Konectdigital\Mpesa\Console\InstallMpesaPackage;
 
 class MpesaServiceProvider extends ServiceProvider
 {

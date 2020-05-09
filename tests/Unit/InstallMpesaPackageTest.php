@@ -4,7 +4,7 @@ namespace Konectdigital\Mpesa\Tests\Unit;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
-use Orchestra\Testbench\TestCase;
+use Konectdigital\Mpesa\Tests\TestCase;
 
 class InstallMpesaPackageTest extends TestCase
 {
