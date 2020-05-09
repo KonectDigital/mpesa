@@ -1,8 +1,9 @@
 <?php
 
-namespace konectdigital\Mpesa;
+namespace Konectdigital\Mpesa;
 
 use Illuminate\Support\ServiceProvider;
+use konectdigital\Mpesa\Console\InstallMpesaPackage;
 
 class MpesaServiceProvider extends ServiceProvider
 {
@@ -11,31 +12,15 @@ class MpesaServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        /*
-         * Optional methods to load your package assets
-         */
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'mpesa');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'mpesa');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
-
         if ($this->app->runningInConsole()) {
+            // publish config file
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('mpesa.php'),
+                __DIR__ . '/../config/config.php' => config_path('mpesa.php'),
             ], 'config');
 
-            // Publishing the views.
-            /*$this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/mpesa'),
-            ], 'views');*/
-
-            // Publishing assets.
-            /*$this->publishes([
-                __DIR__.'/../resources/assets' => public_path('vendor/mpesa'),
-            ], 'assets');*/
-
-            // Registering package commands.
-            // $this->commands([]);
+            $this->commands([
+                InstallMpesaPackage::class,
+            ]);
         }
     }
 
@@ -45,7 +30,7 @@ class MpesaServiceProvider extends ServiceProvider
     public function register()
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'mpesa');
+        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'mpesa');
 
         // Register the main class to use with the facade
         $this->app->singleton('mpesa', function () {
