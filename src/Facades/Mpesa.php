@@ -4,7 +4,7 @@ namespace konectdigital\Mpesa;
 
 use Illuminate\Support\Facades\Facade;
 
-class MpesaFacade extends Facade
+class Mpesa extends Facade
 {
     /**
      * Get the registered name of the component.

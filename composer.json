@@ -46,7 +46,7 @@
                 "Konectdigital\\Mpesa\\MpesaServiceProvider"
             ],
             "aliases": {
-                "Mpesa": "Konectdigital\\Mpesa\\MpesaFacade"
+                "Mpesa": "Konectdigital\\Mpesa\\Facades\\Mpesa"
             }
         }
     }

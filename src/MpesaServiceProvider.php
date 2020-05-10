@@ -33,8 +33,8 @@ class MpesaServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'mpesa');
 
         // Register the main class to use with the facade
-        $this->app->singleton('mpesa', function () {
-            return new Mpesa;
+        $this->app->bind('mpesa', function ($app) {
+            return new Mpesa();
         });
     }
 }
