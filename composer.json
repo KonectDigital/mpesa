@@ -25,7 +25,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Konectdigital\\Mpesa\\": "src"
+            "Konectdigital\\Mpesa\\": "src/"
         }
     },
     "autoload-dev": {
