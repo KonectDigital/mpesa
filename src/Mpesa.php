@@ -1,6 +1,6 @@
 <?php
 
-namespace konectdigital\Mpesa;
+namespace Konectdigital\Mpesa;
 
 use Illuminate\Support\Facades\File;
 
