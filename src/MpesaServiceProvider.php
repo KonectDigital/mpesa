@@ -12,6 +12,7 @@ class MpesaServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
         if ($this->app->runningInConsole()) {
             // publish config file
             $this->publishes([
