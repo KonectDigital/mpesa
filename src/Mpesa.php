@@ -5,9 +5,9 @@ namespace Konectdigital\Mpesa;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 
+
 class Mpesa
 {
-
     /**
      * The common part of the MPesa API endpoints
      * @var string $base_url
@@ -100,17 +100,18 @@ class Mpesa
             $this->base_url = 'https://api.safaricom.co.ke/mpesa/';
         }
         //Base URL for the API endpoints. This is basically the 'common' part of the API endpoints
-        $this->consumer_key = config('mpesa.consumer_key');     //App Key. Get it at https://developer.safaricom.co.ke
-        $this->consumer_secret = config('mpesa.consumer_secret');                     //App Secret Key. Get it at https://developer.safaricom.co.ke
-        $this->paybill = config('mpesa.paybill');                                     //The paybill/till/lipa na mpesa number
-        $this->lipa_na_mpesa = config('mpesa.lipa_na_mpesa');                                //Lipa Na Mpesa online checkout
-        $this->lipa_na_mpesa_key = config('mpesa.lipa_na_mpesa_passkey');    //Lipa Na Mpesa online checkout password
-        $this->initiator_username = config('mpesa.initiator_username');                     //Initiator Username. I dont where how to get this.
-        $this->initiator_password = config('mpesa.initiator_password');                 //Initiator password. I dont know where to get this either.
+        $this->consumer_key = config('mpesa.consumer_key');
+        $this->consumer_secret = config('mpesa.consumer_secret');
+        $this->paybill = config('mpesa.paybill');
+        $this->lipa_na_mpesa = config('mpesa.lipa_na_mpesa');
+        $this->lipa_na_mpesa_key = config('mpesa.lipa_na_mpesa_passkey');
+        $this->initiator_username = config('mpesa.initiator_username');
+        $this->initiator_password = config('mpesa.initiator_password');
 
-        $this->callback_baseurl = 'https://91c77dd6.ngrok.io/api/callback';
+        $this->callback_baseurl = config('mpesa.lnmocallback');
         $this->lnmocallback = config('mpesa.lnmocallback');
         $this->test_msisdn = config('mpesa.test_msisdn');
+
         // c2b the urls
         $this->cbvalidate = config('mpesa.c2b_validate_callback');
         $this->cbconfirm = config('mpesa.c2b_confirm_callback');
@@ -119,7 +120,8 @@ class Mpesa
         $this->bctimeout = config('mpesa.b2c_timeout');
         $this->bcresult = config('mpesa.b2c_result');
 
-        $this->access_token = $this->getAccessToken(); //Set up access token
+        //Set up access token
+        $this->access_token = $this->getAccessToken();
     }
 
     /**
@@ -406,7 +408,7 @@ class Mpesa
     {
         $phone     = (substr($phone, 0, 1) == "+") ? str_replace("+", "", $phone) : $phone;
         $phone     = (substr($phone, 0, 1) == "0") ? preg_replace("/^0/", "254", $phone) : $phone;
-        $phone = (substr($phone, 0, 1) == "7") ? "254{$phone}" : $phone;
+        $phone     = (substr($phone, 0, 1) == "7") ? "254{$phone}" : $phone;
 
         $timestamp = date('YmdHis');
         $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);
