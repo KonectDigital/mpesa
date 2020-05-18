@@ -13,12 +13,14 @@ You can install the package via composer:
 
 ```bash
 composer require konectdigital/mpesa
+php artisan vendor:publish
 ```
 
 ## Usage
 
 ```php
-// Usage description here
+//Import Mpesa facade
+ use Mpesa
 ```
 
 ### Testing
