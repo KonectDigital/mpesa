@@ -3,7 +3,6 @@
 namespace Konectdigital\Mpesa;
 
 use Exception;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 
 
