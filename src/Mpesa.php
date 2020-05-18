@@ -407,15 +407,13 @@ class Mpesa
     public function express($amount, $phone, $ref = "Payment", $desc = "Payment")
     {
         if (!is_numeric($amount) || $amount < 1 || !is_numeric($phone)) {
-            throw new Exception("Invalid amount and/or phone number. Amount should be 10 or more, phone number should be a Kenyan number");
+            throw new Exception("Invalid amount and/or phone number. Amount should be 10 or more, phone number should be 07xxxxxxxxx");
             return FALSE;
         }
 
         $phone     = (substr($phone, 0, 1) == "+") ? str_replace("+", "", $phone) : $phone;
         $phone     = (substr($phone, 0, 1) == "0") ? preg_replace("/^0/", "254", $phone) : $phone;
         $phone     = (substr($phone, 0, 1) == "7") ? "254{$phone}" : $phone;
-
-        dd($phone);
 
         $timestamp = date('YmdHis');
         $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);
