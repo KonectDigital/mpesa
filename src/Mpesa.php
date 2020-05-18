@@ -93,7 +93,6 @@ class Mpesa
 
     public function __construct()
     {
-
         if (config('mpesa.mpesa_env') == 'sandbox') {
             $this->base_url = 'https://sandbox.safaricom.co.ke/mpesa/';
         } else {
@@ -409,6 +408,8 @@ class Mpesa
         $phone     = (substr($phone, 0, 1) == "+") ? str_replace("+", "", $phone) : $phone;
         $phone     = (substr($phone, 0, 1) == "0") ? preg_replace("/^0/", "254", $phone) : $phone;
         $phone     = (substr($phone, 0, 1) == "7") ? "254{$phone}" : $phone;
+
+        dd($phone);
 
         $timestamp = date('YmdHis');
         $passwd = base64_encode($this->lipa_na_mpesa . $this->lipa_na_mpesa_key . $timestamp);

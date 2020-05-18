@@ -1,6 +1,6 @@
 <?php
 
-namespace konectdigital\Mpesa;
+namespace Konectdigital\Mpesa\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
