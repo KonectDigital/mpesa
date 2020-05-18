@@ -1,7 +1,6 @@
 # Laravel MPesa Daraja API Implementation
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/konectdigital/mpesa.svg?style=flat-square)](https://packagist.org/packages/konectdigital/mpesa)
-[![Build Status](https://img.shields.io/travis/konectdigital/mpesa/master.svg?style=flat-square)](https://travis-ci.org/konectdigital/mpesa)
 [![Quality Score](https://img.shields.io/scrutinizer/g/konectdigital/mpesa.svg?style=flat-square)](https://scrutinizer-ci.com/g/konectdigital/mpesa)
 [![Total Downloads](https://img.shields.io/packagist/dt/konectdigital/mpesa.svg?style=flat-square)](https://packagist.org/packages/konectdigital/mpesa)
 
@@ -20,7 +19,7 @@ php artisan vendor:publish
 
 ```php
 //Import Mpesa facade
- use Mpesa
+ use Mpesa;
 ```
 
 ### Testing
