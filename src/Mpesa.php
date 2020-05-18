@@ -2,6 +2,7 @@
 
 namespace Konectdigital\Mpesa;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 
@@ -405,6 +406,11 @@ class Mpesa
 
     public function express($amount, $phone, $ref = "Payment", $desc = "Payment")
     {
+        if (!is_numeric($amount) || $amount < 1 || !is_numeric($phone)) {
+            throw new Exception("Invalid amount and/or phone number. Amount should be 10 or more, phone number should be a Kenyan number");
+            return FALSE;
+        }
+
         $phone     = (substr($phone, 0, 1) == "+") ? str_replace("+", "", $phone) : $phone;
         $phone     = (substr($phone, 0, 1) == "0") ? preg_replace("/^0/", "254", $phone) : $phone;
         $phone     = (substr($phone, 0, 1) == "7") ? "254{$phone}" : $phone;
